@@ -5,12 +5,13 @@ use axum::{
     routing::get,
     Router,
 };
-use axum_extra::extract::{cookie::Cookie, cookie::Expiration, CookieJar, OptionalPath};
+use axum_extra::extract::{CookieJar, OptionalPath};
 use maud::{html, Markup, DOCTYPE};
 use reddit::types::Thing;
 use tokio::sync::OnceCell;
 use tower_http::services::ServeDir;
 
+mod auth;
 mod reddit;
 
 const USER_AGENT: &str = "web:shuttle-redddit:0.0.1 (by u/steve_dark03)";
@@ -42,9 +43,8 @@ async fn main(
 
     let router = Router::new()
         .nest_service("/assets", ServeDir::new("assets"))
+        .merge(auth::router())
         .route("/test", get(test))
-        .route("/oauth", get(oauth))
-        .route("/logout", get(logout))
         .route("/", get(reddit))
         .route("/*path", get(reddit));
 
@@ -72,79 +72,6 @@ async fn test() -> impl IntoResponse {
     doc_tempalte(html! {
         (t.render())
     })
-}
-
-#[derive(serde::Deserialize)]
-struct OAuthQuery {
-    error: Option<String>,
-    code: Option<String>,
-    state: Option<String>,
-}
-#[derive(serde::Deserialize)]
-struct OAuthResponse {
-    access_token: String,
-    expires_in: u32,
-    scope: Option<String>,
-    refresh_token: Option<String>,
-}
-async fn oauth(
-    Query(auth): Query<OAuthQuery>,
-    cookiejar: CookieJar,
-) -> axum::response::Result<impl IntoResponse> {
-    match auth {
-        OAuthQuery {
-            error: Some(error), ..
-        } => Err((StatusCode::BAD_REQUEST, error))?,
-        OAuthQuery {
-            code: Some(code),
-            state,
-            ..
-        } => {
-            let res = match reqwest::Client::new()
-                .post("https://www.reddit.com/api/v1/access_token")
-                .basic_auth(CLIENT_ID.get().unwrap(), CLIENT_SECRET.get())
-                .form(&[
-                    ("grant_type", "authorization_code"),
-                    ("code", code.as_str()),
-                    ("redirect_uri", REDIRECT_URI.get().unwrap().as_str()),
-                ])
-                .header("User-Agent", USER_AGENT)
-                .send()
-                .await
-            {
-                Ok(res) => res,
-                Err(err) => Err(err.to_string())?,
-            };
-            let Ok(auth) = res.json::<OAuthResponse>().await else {
-                Err("Error parsing oauth response")?
-            };
-            // Wierd cookie shadowing
-            let cookiejar = cookiejar.add(
-                Cookie::build(("access_token", auth.access_token))
-                    .http_only(true)
-                    .secure(true)
-                    .max_age(cookie::time::Duration::new(auth.expires_in as i64, 0)),
-            );
-            let cookiejar = if let Some(refresh_token) = auth.refresh_token {
-                cookiejar.add(
-                    Cookie::build(("refresh_token", refresh_token))
-                        .http_only(true)
-                        .secure(true),
-                )
-            } else {
-                cookiejar
-            };
-            return Ok((cookiejar, Redirect::to(&state.unwrap_or("/".to_string()))));
-        }
-        _ => Err((StatusCode::BAD_REQUEST, "Missing code"))?,
-    }
-}
-
-async fn logout(cookiejar: CookieJar) -> impl IntoResponse {
-    (
-        cookiejar.remove("access_token").remove("access_token"),
-        Redirect::to("/"),
-    )
 }
 
 async fn reddit(
