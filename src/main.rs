@@ -98,7 +98,7 @@ async fn reddit(
 
 fn reddit_template(content: Markup, path: Option<Option<String>>) -> Markup {
     doc_tempalte(html! {
-        header class="sticky top-0 flex justify-between bg-slate-800 p-2 text-slate-100" {
+        header class="sticky top-0 z-30 flex justify-between bg-slate-800 p-2 text-slate-100" {
             "Reddit"
             @if let Some(p) = path {
                 a href=(&reddit::login_url(p)) { "Login" }

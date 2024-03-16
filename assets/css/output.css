@@ -617,6 +617,10 @@ body {
   top: 0px;
 }
 
+.z-30 {
+  z-index: 30;
+}
+
 .m-auto {
   margin: auto;
 }
@@ -639,6 +643,14 @@ body {
 
 .w-full {
   width: 100%;
+}
+
+.snap-x {
+  scroll-snap-type: x var(--tw-scroll-snap-strictness);
+}
+
+.snap-mandatory {
+  --tw-scroll-snap-strictness: mandatory;
 }
 
 .justify-between {

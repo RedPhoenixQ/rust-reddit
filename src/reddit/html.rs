@@ -24,7 +24,7 @@ impl Post {
                 } @else if let Some(selftext) = &self.selftext {
                     span { (selftext) }
                 } @else {
-                    span class="text-center italic text-sm"
+                    span class="text-center text-sm italic"
                     { "Content appears to be missing"}
                 }
                 }
@@ -45,7 +45,7 @@ impl SourceSet {
 
     fn render_video(&self, poster: &Option<String>) -> Markup {
         html! {
-            video class="w-full h-full max-h-full"
+            video class="h-full max-h-full w-full"
             width=(self.source.width)
             height=(self.source.height)
             src=(self.source.url)
@@ -64,7 +64,7 @@ impl Preview {
     fn render(&self, thumbnail: &Option<String>) -> Markup {
         html! {
             @if let Some(video) = &self.reddit_video_preview {
-                video class="w-full h-full max-h-full"
+                video class="h-full max-h-full w-full"
                 width=(video.width)
                 height=(video.height)
                 autoplay controls playsinline "loop" muted
@@ -90,7 +90,7 @@ impl Preview {
 impl Gallery {
     fn render(&self) -> Markup {
         html! {
-            div class="flex overflow-auto w-full" {
+            custom-gallery class="flex w-full snap-x snap-mandatory overflow-auto" {
                 @for item in &self.gallery_data.items {
                     @if let Some(data) = self.media_metadata.get(&item.media_id) {
                         @match data.content_type {
