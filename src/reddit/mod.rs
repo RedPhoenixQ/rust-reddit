@@ -1,6 +1,7 @@
 use crate::constants::*;
 use reqwest::Url;
 
+pub mod html;
 pub mod types;
 
 pub fn login_url(state: Option<String>) -> String {

@@ -84,26 +84,8 @@ async fn reddit(
             #posts class="space-y-4 p-4" {
                 @for thing in &listing.children {
                     @match thing {
-                        Thing::Post(post) =>{
-                            div class="rounded border bg-slate-800 p-2 text-slate-100" {
-                                a href=(post.url) {(post.title)}
-                                div class="flex gap-2" {
-                                    @if let Some(author) = &post.author {
-                                        span {(author)}
-                                    } @else {
-                                        i { "removed" }
-                                    }
-                                    a href=(post.subreddit_name_prefixed) {
-                                        (post.subreddit)
-                                    }
-                                }
-                                @if let Some(preview) = &post.preview {
-                                    @let image = preview.images.first().unwrap();
-                                    img class="m-auto" src=(image.default.source.url)
-                                    width=(image.default.source.width)
-                                    height=(image.default.source.height);
-                                }
-                            }
+                        Thing::Post(post) => {
+                            (post.render_feed())
                         }
                         _ => {}
                     }
