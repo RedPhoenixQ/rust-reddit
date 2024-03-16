@@ -69,7 +69,7 @@ pub struct Preview {
 #[derive(serde::Deserialize)]
 pub struct Gallery {
     pub gallery_data: GalleryData,
-    pub media_metadata: HashMap<String, SourceSet>,
+    pub media_metadata: HashMap<String, GallerySourceSet>,
 }
 
 #[derive(serde::Deserialize)]
@@ -82,6 +82,23 @@ pub struct GalleryItem {
     pub id: u64,
     pub media_id: String,
     pub caption: Option<String>,
+}
+
+#[derive(serde::Deserialize)]
+pub struct GallerySourceSet {
+    #[serde(flatten)]
+    pub source: SourceSet,
+    #[serde(alias = "e")]
+    pub content_type: GalleryContentType,
+    #[serde(alias = "m")]
+    pub mime: Option<String>,
+}
+
+// NOTE: The enum option Video is not confirmed to be correct
+#[derive(serde::Deserialize)]
+pub enum GalleryContentType {
+    Image,
+    Video,
 }
 
 #[derive(serde::Deserialize)]
