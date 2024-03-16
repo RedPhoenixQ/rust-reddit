@@ -1,19 +1,13 @@
-use axum::{
-    extract::{Query, RawQuery},
-    http::{HeaderMap, HeaderValue, StatusCode},
-    response::{IntoResponse, Redirect},
-    routing::get,
-    Router,
-};
+use axum::{extract::RawQuery, response::IntoResponse, routing::get, Extension, Router};
 use axum_extra::extract::{CookieJar, OptionalPath};
 use maud::{html, Markup, DOCTYPE};
 use reddit::types::Thing;
+use reqwest::Client;
 use tower_http::services::ServeDir;
 
 mod auth;
 mod constants;
 mod reddit;
-
 
 #[shuttle_runtime::main]
 async fn main(
@@ -26,7 +20,13 @@ async fn main(
         .merge(auth::router())
         .route("/test", get(test))
         .route("/", get(reddit))
-        .route("/*path", get(reddit));
+        .route("/*path", get(reddit))
+        .layer(Extension(
+            Client::builder()
+                .user_agent(constants::USER_AGENT)
+                .build()
+                .expect("Reqwest client to be created"),
+        ));
 
     Ok(router.into())
 }
@@ -55,18 +55,17 @@ async fn test() -> impl IntoResponse {
 }
 
 async fn reddit(
+    Extension(client): Extension<Client>,
     OptionalPath(path): OptionalPath<String>,
     RawQuery(query): RawQuery,
     cookiejar: CookieJar,
 ) -> axum::response::Result<impl IntoResponse> {
     dbg!(&path, &query);
-    let req = reqwest::Client::new()
-        .get(format!(
-            "https://oauth.reddit.com/{}.json?raw_json=1&{}",
-            path.clone().unwrap_or_default(),
-            query.unwrap_or_default()
-        ))
-        .header("User-Agent", USER_AGENT);
+    let req = client.get(format!(
+        "https://oauth.reddit.com/{}.json?raw_json=1&{}",
+        path.clone().unwrap_or_default(),
+        query.unwrap_or_default()
+    ));
     let access_token = cookiejar.get("access_token");
     let req = if let Some(token) = access_token {
         req.bearer_auth(token.value())

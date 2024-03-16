@@ -4,9 +4,10 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Redirect},
     routing::get,
-    Router,
+    Extension, Router,
 };
 use axum_extra::extract::{cookie::Cookie, CookieJar};
+use reqwest::Client;
 use serde::Deserialize;
 
 pub fn router() -> Router {
@@ -29,6 +30,7 @@ struct OAuthResponse {
     refresh_token: Option<String>,
 }
 async fn oauth(
+    Extension(client): Extension<Client>,
     Query(auth): Query<OAuthQuery>,
     cookiejar: CookieJar,
 ) -> axum::response::Result<impl IntoResponse> {
@@ -41,7 +43,7 @@ async fn oauth(
             state,
             ..
         } => {
-            let res = match reqwest::Client::new()
+            let res = match client
                 .post("https://www.reddit.com/api/v1/access_token")
                 .basic_auth(CLIENT_ID.get().unwrap(), CLIENT_SECRET.get())
                 .form(&[
