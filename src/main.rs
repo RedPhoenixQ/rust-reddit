@@ -139,5 +139,6 @@ fn js_scripts() -> Markup {
 fn js_components() -> Markup {
     html! {
         script type="module" src="/assets/components/test.js" {}
+        script type="module" src="/assets/components/gallery.js" {}
     }
 }
