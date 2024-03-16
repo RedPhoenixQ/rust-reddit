@@ -85,6 +85,7 @@ pub struct GalleryItem {
 
 #[derive(serde::Deserialize)]
 pub struct PreviewSourceSet {
+    pub id: String,
     #[serde(flatten)]
     pub default: SourceSet,
     pub variants: Option<ImageVariants>,
@@ -92,7 +93,6 @@ pub struct PreviewSourceSet {
 
 #[derive(serde::Deserialize)]
 pub struct SourceSet {
-    pub id: String,
     #[serde(alias = "s")]
     pub source: Source,
     #[serde(alias = "p")]
