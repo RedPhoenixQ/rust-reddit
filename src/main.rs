@@ -98,9 +98,9 @@ async fn reddit(
                                 }
                                 @if let Some(preview) = &post.preview {
                                     @let image = preview.images.first().unwrap();
-                                    img class="m-auto" src=(image.source.url)
-                                    width=(image.source.width)
-                                    height=(image.source.height);
+                                    img class="m-auto" src=(image.default.source.url)
+                                    width=(image.default.source.width)
+                                    height=(image.default.source.height);
                                 }
                             }
                         }
