@@ -1,6 +1,5 @@
+use crate::constants::*;
 use reqwest::Url;
-
-use crate::{CLIENT_ID, REDIRECT_URI};
 
 pub mod types;
 

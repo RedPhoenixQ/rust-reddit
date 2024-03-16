@@ -8,38 +8,18 @@ use axum::{
 use axum_extra::extract::{CookieJar, OptionalPath};
 use maud::{html, Markup, DOCTYPE};
 use reddit::types::Thing;
-use tokio::sync::OnceCell;
 use tower_http::services::ServeDir;
 
 mod auth;
+mod constants;
 mod reddit;
 
-const USER_AGENT: &str = "web:shuttle-redddit:0.0.1 (by u/steve_dark03)";
-
-static CLIENT_ID: OnceCell<String> = OnceCell::const_new();
-static CLIENT_SECRET: OnceCell<String> = OnceCell::const_new();
-static REDIRECT_URI: OnceCell<String> = OnceCell::const_new();
-
-fn init_secrets(secret_store: shuttle_secrets::SecretStore) {
-    for (cell, key) in [
-        (&CLIENT_ID, "PUBLIC_CLIENT_ID"),
-        (&CLIENT_SECRET, "CLIENT_SECRET"),
-        (&REDIRECT_URI, "PUBLIC_REDIRECT_URI"),
-    ] {
-        cell.set(
-            secret_store
-                .get(key)
-                .expect(&format!("{key} to exist in Secrets")),
-        )
-        .expect("PUBLIC_REDIRECT_URI to exist in Secrets")
-    }
-}
 
 #[shuttle_runtime::main]
 async fn main(
     #[shuttle_secrets::Secrets] secret_store: shuttle_secrets::SecretStore,
 ) -> shuttle_axum::ShuttleAxum {
-    init_secrets(secret_store);
+    constants::init(secret_store);
 
     let router = Router::new()
         .nest_service("/assets", ServeDir::new("assets"))
