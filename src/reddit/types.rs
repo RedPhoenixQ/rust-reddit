@@ -62,6 +62,7 @@ pub struct Post {
 #[derive(serde::Deserialize)]
 pub struct Preview {
     pub images: Vec<PreviewSourceSet>,
+    pub reddit_video_preview: Option<RedditVideoPreview>,
     pub enabled: bool,
 }
 
@@ -113,4 +114,18 @@ pub struct Source {
     pub width: i64,
     #[serde(alias = "y")]
     pub height: i64,
+}
+
+#[derive(serde::Deserialize)]
+pub struct RedditVideoPreview {
+    // pub bitrate_kbps: u64,
+    /// Usually an mp4 url
+    pub fallback_url: String,
+    pub height: u64,
+    pub width: u64,
+    // pub scrubber_media_url: String,
+    // pub dash_url: String,
+    pub duration: u64,
+    // pub hls_url: String,
+    pub is_gif: bool,
 }
