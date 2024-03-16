@@ -1427,6 +1427,7 @@ dependencies = [
  "shuttle-secrets",
  "tokio",
  "tower-http",
+ "tracing",
 ]
 
 [[package]]

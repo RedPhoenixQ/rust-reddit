@@ -4,6 +4,7 @@ use maud::{html, Markup, DOCTYPE};
 use reddit::types::Thing;
 use reqwest::Client;
 use tower_http::services::ServeDir;
+use tracing::info;
 
 mod auth;
 mod constants;
@@ -60,7 +61,7 @@ async fn reddit(
     RawQuery(query): RawQuery,
     cookiejar: CookieJar,
 ) -> axum::response::Result<impl IntoResponse> {
-    dbg!(&path, &query);
+    info!("Reddit request with path {:?}", path);
     let req = client.get(format!(
         "https://oauth.reddit.com/{}.json?raw_json=1&{}",
         path.clone().unwrap_or_default(),
