@@ -39,7 +39,8 @@ impl SourceSet {
             img class="m-auto w-full"
             width=(self.source.width)
             height=(self.source.height)
-            src=(self.source.url);
+            src=(self.source.url)
+            loading="lazy";
         }
     }
 
@@ -69,6 +70,7 @@ impl Preview {
                 height=(video.height)
                 autoplay controls playsinline "loop" muted
                 src=(video.fallback_url)
+                poster=[thumbnail]
                 {}
             } @else if let Some(image) = self.images.first() {
                 @match image.variants {
