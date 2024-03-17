@@ -141,7 +141,7 @@ pub struct RedditVideoPreview {
     pub height: u64,
     pub width: u64,
     // pub scrubber_media_url: String,
-    // pub dash_url: String,
+    pub dash_url: String,
     pub duration: u64,
     // pub hls_url: String,
     pub is_gif: bool,

@@ -71,7 +71,10 @@ impl Preview {
                 autoplay controls playsinline "loop" muted
                 src=(video.fallback_url)
                 poster=[thumbnail]
-                {}
+                {
+                    source "type"="video/mpd" src=(video.dash_url) {}
+                    source "type"="video/mp4" src=(video.fallback_url) {}
+                }
             } @else if let Some(image) = self.images.first() {
                 @match image.variants {
                     Some(ImageVariants { gif: Some(ref gif), .. }) => {
