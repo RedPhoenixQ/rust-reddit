@@ -13,7 +13,7 @@ impl Post {
                     } @else {
                         i { "removed" }
                     }
-                    a href=(self.subreddit_name_prefixed) {
+                    a href={ "/" (self.subreddit_name_prefixed) } {
                         (self.subreddit)
                     }
                 }
@@ -47,11 +47,14 @@ impl SourceSet {
     fn render_video(&self, poster: &Option<String>) -> Markup {
         html! {
             video class="h-full max-h-full w-full"
+            style={ "aspect-ratio: " (self.source.width) "/" (self.source.height) }
             width=(self.source.width)
             height=(self.source.height)
             src=(self.source.url)
             poster=[poster]
-            autoplay controls playsinline "loop" muted
+            preload="none"
+            controls playsinline "loop" muted
+            onclick="this.play()"
             {
                 @for Source { url, width, height } in &self.resolutions {
                     source width=(width) height=(height) src=(url) {}
@@ -66,11 +69,14 @@ impl Preview {
         html! {
             @if let Some(video) = &self.reddit_video_preview {
                 video class="h-full max-h-full w-full"
+                style={ "aspect-ratio: " (video.width) "/" (video.height) }
                 width=(video.width)
                 height=(video.height)
-                autoplay controls playsinline "loop" muted
                 src=(video.fallback_url)
                 poster=[thumbnail]
+                preload="none"
+                controls playsinline "loop" muted
+                onclick="this.play()"
                 {
                     source "type"="video/mpd" src=(video.dash_url) {}
                     source "type"="video/mp4" src=(video.fallback_url) {}
